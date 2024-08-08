@@ -4,36 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>G.R.I.R.R - Dashboard</title>
+    {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 <body>
-    <header>
-        <h1>G.R.I.R.R</h1>
-        <nav>
-            <a href="{% url 'dashboard' %}">Dashboard</a>
-            <a href="{% url 'children' %}">Children</a>
-            <a href="{% url 'program_costs' %}">Program Costs</a>
-            <a href="{% url 'baselines' %}">Baselines</a>
-            <a href="{% url 'toolkit' %}">Toolkit</a>
-            <a href="{% url 'resources' %}">Resources</a>
-        </nav>
-    </header>
-    <main>
-        <div class="stats">
-            <div>Total Children currently rehabilitating: 395</div>
-            <div>Total Program Cost List: 0</div>
-            <div>Total Assessments: a lot</div>
-            <div>Total Rehabilitations: 853</div>
-        </div>
-        <div class="content">
-            <h2>Tele-Rehabilitation - Reaching the Unreached</h2>
-            <img src="{% static 'images/tele-rehab.jpg' %}" alt="Tele-Rehabilitation">
-            <p>What is tele-Rehab?</p>
-            <p>G.R.I.R.R is an organization that help children with disabilities in Kolkata, India</p>
-        </div>
-    </main>
-    <footer>
-        <p>&copy; 2024 G.R.I.R.R</p>
-    </footer>
+    <h1>G.R.I.R.R - Dashboard</h1>
+    <nav>
+        <ul>
+            <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+            <li><a href="{% url 'children' %}">Children</a></li>
+            <li><a href="{% url 'program_costs' %}">Program Costs</a></li>
+            <li><a href="{% url 'resources' %}">Resources</a></li>
+            <li><a href="{% url 'baselines' %}">Baselines</a></li>
+            <li><a href="{% url 'toolkit' %}">Toolkit</a></li>
+        </ul>
+    </nav>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Register</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
@@ -15,7 +15,7 @@
             height: 100vh;
             background-color: #f8f9fa;
         }
-        .login-container {
+        .register-container {
             width: 100%;
             max-width: 400px;
             padding: 20px;
@@ -23,7 +23,7 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             background-color: #ffffff;
         }
-        .login-container h2 {
+        .register-container h2 {
             margin-bottom: 20px;
         }
         .messages {
@@ -32,22 +32,30 @@
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <h2>Login</h2>
+    <div class="register-container">
+        <h2>Register</h2>
         <form method="POST">
             {% csrf_token %}
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" class="form-control" required>
+            </div>
             <div class="form-group">
                 <label for="username">Username:</label>
                 <input type="text" id="username" name="username" class="form-control" required>
             </div>
             <div class="form-group">
+                <label for="phone_number">Phone Number:</label>
+                <input type="text" id="phone_number" name="phone_number" class="form-control" required>
+            </div>
+            <div class="form-group">
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" class="form-control" required>
             </div>
-            <button type="submit" class="btn btn-primary btn-block">Login</button>
+            <button type="submit" class="btn btn-primary btn-block">Register</button>
         </form>
         <div class="text-center mt-3">
-            <a href="{% url 'register' %}" class="btn btn-secondary btn-block">Register</a>
+            <a href="{% url 'login' %}" class="btn btn-secondary btn-block">Go back to Login</a>
         </div>
         {% if messages %}
         <div class="messages mt-3">

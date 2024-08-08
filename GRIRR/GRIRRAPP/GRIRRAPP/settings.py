@@ -70,6 +70,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'GRIRRAPP.wsgi.application'
 
+AUTH_USER_MODEL = 'myapp.CustomUser' 
+
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
@@ -81,7 +83,7 @@ DATABASES = {
         'USER': 'root',
         'PASSWORD': 'GRIRR@1289371078230',
         'HOST': '127.0.0.1',
-        'PORT': '3307',
+        'PORT': '3306',
     }
 }
 
@@ -123,9 +125,15 @@ USE_TZ = True
 
 import os
 
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'main/static')]
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "myapp", "static"),
+]
+
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 
 # Default primary key field type
