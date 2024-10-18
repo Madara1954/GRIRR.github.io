@@ -1,0 +1,6 @@
+<form method="POST" action="{% url 'verify_email_code' %}">
+    {% csrf_token %}
+    <label for="verification_code">Enter Verification Code:</label>
+    <input type="text" name="verification_code" required>
+    <button type="submit">Verify</button>
+</form>

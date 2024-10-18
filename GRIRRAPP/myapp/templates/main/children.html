@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <h1>Add Child</h1>
+    <form id="addChildForm" method="post" action="{% url 'add_child' %}">
+        {% csrf_token %}
+        <div>
+            {{ form.as_p }}
+            {{ form.name }}
+            {{ form.errors }}
+            {% if form.name.errors %}
+            <ul class="errorlist" style="color: red;">
+            {% for error in form.name.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        <div id="errorMessages" style="color: red;">
+        </div> <button type="submit">submit</button>
+    </form>
+    <div id="childrenContainer"></div>
+
+    <script>
+        $(document).ready(function() {
+            $('#addChildForm').on('submit', function(event) {
+                event.preventDefault(); // Prevent default form submission
+
+                $.ajax({
+                    type: 'POST',
+                    url: '',  // Current URL
+                    data: $(this).serialize(),  // Serialize form data
+                    success: function(response) {
+                        if (response.success) {
+                            alert('Child successfully added: ' + response.childName);
+                            $('#addChildForm')[0].reset(); // Reset the form
+                        } else {
+                            // Display form errors
+                            $('#errorMessages').html('');
+                            $.each(response.errors, function(field, messages) {
+                                $('#errorMessages').append('<div>' + field + ': ' + messages.join(', ') + '</div>');
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX error:', error);
+                    }
+                });
+            });
+        });
+    </script>     
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+    <!-- Custom styles to move the button -->
+    <style>
+        .back-dashboard-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Back to Dashboard Button -->
+    <div class="back-dashboard-btn">
+        <a href="{% url 'parentDashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card mt-5">
+                    <div class="card-body text-center">
+                        <h3 class="card-title">{{ user.username }}</h3>
+                        <img src="path_to_profile_image.jpg" class="rounded-circle" alt="User Profile Image" style="width: 150px;">
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h5 class="card-title"><strong>First Name:</strong> {{ user.first_name }}</h5>
+                        <h5 class="card-title"><strong>Last Name:</strong> {{ user.last_name }}</h5>
+                        <h5 class="card-title"><strong>Email:</strong> {{ user.email }}</h5>
+                        <h5 class="card-title"><strong>Phone Number:</strong> {{ user.phone_number }}</h5>
+                        <h5 class="card-title"><strong>Created:</strong> {{ user.date_joined }}</h5>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <h5 class="card-title"><strong>Children:</strong></h5>
+                    <ul>
+                        {% if children %}
+                            {% for child in children %}
+                                <li>{{ child.first_name }} {{ child.last_name }} - Age: {{ child.age }}</li>
+                            {% endfor %}
+                        {% else %}
+                            <li>No children added yet.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+
+                <a href="{% url 'edit_profile' user.id %}" class="btn btn-primary mt-3"><i class="fas fa-edit"></i> Edit</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>
