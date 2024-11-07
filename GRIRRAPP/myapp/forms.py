@@ -14,7 +14,15 @@ class CustomUserForm(forms.ModelForm):
         fields = ['first_name', 'last_name','email', 'username', 'phone_number',]  
 
 class ChildForm(forms.ModelForm):
+    dob = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date', 'placeholder': 'YYYY-MM-DD'}),
+        input_formats=['%Y-%m-%d'],  # specify the expected input format
+    )
     class Meta:
         model = Child
-        fields = ['name']
+        fields = ['first_name', 'last_name', 'dob', 'age', 'gender', 'address']
+        widgets = {
+            'dob': forms.DateInput(attrs={'type': 'date'}),
+        }
+
 

@@ -1,23 +1,17 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from .forms import RegisterForm, CustomUserForm, ChildForm
-from django.contrib.auth import logout
+from .models import CustomUser, Child
 from django.core.mail import send_mail
 from django.conf import settings
-from .models import EmailVerificationToken, User, Child
-from django.contrib.auth.models import User
-import smtplib
+from django.urls import reverse
+from django.http import JsonResponse
 import random
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email_validator import validate_email, EmailNotValidError
-from django.urls import reverse
 from django.contrib.auth import get_user_model
-from .models import CustomUser, Child
-from django.http import JsonResponse
-
-
 
 User = get_user_model()
 # SMTP server credentials
@@ -122,37 +116,50 @@ def children_view(request):
 
     return render(request, 'main/children.html', {'form': form, 'children_list': children_list})
 
+@login_required
 def add_child(request):
-    print("add_child function called.")
-    if request.method == 'GET':
-        form = ChildForm(request.GET)
-    else: 
+    if request.method == 'POST':
         form = ChildForm(request.POST)
-        print("Form initialized:", form)
         if form.is_valid():
             child = form.save(commit=False)
-            child.parent = request.user  
+            child.parent = request.user
             child.save()
-            return JsonResponse({'success': True, 'childName': child.name})
+            return JsonResponse({
+                'success': True,
+                'child': {
+                    'first_name': child.first_name,
+                    'last_name': child.last_name,
+                    'age': child.age
+                }
+            })
         else:
-            print("Form errors:", form.errors)
-            return JsonResponse({'success': False, 'message': 'Invalid input'})
-    return render(request, 'children.html', {'form': form})
+            # Return errors if the form is not valid
+            return JsonResponse({
+                'success': False,
+                'errors': [error for error in form.errors.values()]
+            })
+    else:
+        form = ChildForm()
+
+    children_list = Child.objects.filter(parent=request.user)
+    return render(request, 'main/children.html', {'form': form, 'children_list': children_list})
 
 
-@login_required
 def edit_child(request, child_id):
     child = get_object_or_404(Child, id=child_id)
-    
-    if request.method == 'POST':
+    if request.method == "POST":
         form = ChildForm(request.POST, instance=child)
         if form.is_valid():
             form.save()
-            return redirect('children')
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors})
     else:
         form = ChildForm(instance=child)
-    
-    return render(request, 'main/edit_child.html', {'form': form, 'child': child})
+    return render(request, 'edit_child.html', {'form': form, 'child': child})
+
+
+
 
 @login_required
 def delete_child(request, child_id):
@@ -215,9 +222,13 @@ def edit_profile(request, user_id):
     
     return render(request, 'main/edit_profile.html', {'form': form, 'user': user, 'children': children})
 
-
-
-
+def parent_details_view(request, parent_id):
+    parent = get_object_or_404(CustomUser, id=parent_id)
+    children = Child.objects.filter(parent=parent)
+    return render(request, 'main/admin/parent_details.html', {
+        'parent': parent,
+        'children': children,
+    })
 
 
 @login_required

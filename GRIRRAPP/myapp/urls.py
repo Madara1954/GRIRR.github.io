@@ -1,14 +1,14 @@
 from django.urls import path, include
 from django.shortcuts import redirect
-from myapp import views
-from .views import verify_email_code, add_child
 from . import views
+from .views import verify_email_code, add_child
 
 urlpatterns = [
     path('', views.login_view, name='login'),
     path('parentDashboard/', views.parent_dashboard, name='parentDashboard'),
     path('employeeDashboard/', views.employee_dashboard, name='employeeDashboard'),
-    path('children/', views.children, name='children'),
+    path('children/add/', views.add_child, name='add_child'),
+    path('children/', views.add_child, name='children'), 
     path('add_child/', add_child, name='add_child'),
     path('program_costs/', views.program_costs, name='program_costs'),
     path('baselines/', views.baselines, name='baselines'),
@@ -22,5 +22,6 @@ urlpatterns = [
     path('edit_child/<int:child_id>/', views.edit_child, name='edit_child'),
     path('delete_child/<int:child_id>/', views.delete_child, name='delete_child'),
     path('profile/<int:user_id>/', views.user_profile, name='profile'),  
+    path('admin/myapp/parent/<int:parent_id>/children/', views.parent_details_view, name='admin_parent_details'),
     path('', lambda request: redirect('login', permanent=True)),
 ]

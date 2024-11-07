@@ -3,57 +3,213 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Profile</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <title>Children Information</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <h1>Add Child</h1>
-    <form id="addChildForm" method="post" action="{% url 'add_child' %}">
-        {% csrf_token %}
-        <div>
+    <div class="container">
+        <h1>Add Child</h1>
+        <form id="addChildForm" method="post" action="{% url 'add_child' %}">
+            {% csrf_token %}
             {{ form.as_p }}
-            {{ form.name }}
-            {{ form.errors }}
-            {% if form.name.errors %}
-            <ul class="errorlist" style="color: red;">
-            {% for error in form.name.errors %}
-            <li>{{ error }}</li>
-            {% endfor %}
-            </ul>
-            {% endif %}
+            <div id="errorMessages" style="color: red;"></div>
+            <button type="submit" class="btn btn-primary">Add Child</button>
+        </form>
+
+        <div class="card mt-5">
+            <div class="card-body">
+                <h3>Children</h3>
+                <div class="mt-3">
+                    <h5 class="card-title"><strong>Children List:</strong></h5>
+                    <ul id="childrenContainer">
+                        {% if children_list %}
+                            {% for child in children_list %}
+                                <li id="child_{{ child.id }}">
+                                    {{ child.first_name }} {{ child.last_name }} - Age: {{ child.age }}
+                                    <button class="btn btn-warning btn-sm editChildBtn" data-id="{{ child.id }}" data-first_name="{{ child.first_name }}" data-last_name="{{ child.last_name }}" data-age="{{ child.age }}" data-dob="{{ child.dob }}" data-gender="{{ child.gender }}" data-address="{{ child.address }}">Edit</button>
+                                </li>
+                            {% endfor %}
+                        {% else %}
+                            <li>No children added yet.</li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
         </div>
-        <div id="errorMessages" style="color: red;">
-        </div> <button type="submit">submit</button>
-    </form>
-    <div id="childrenContainer"></div>
 
-    <script>
-        $(document).ready(function() {
-            $('#addChildForm').on('submit', function(event) {
-                event.preventDefault(); // Prevent default form submission
+        <!-- Edit Child Modal -->
+        <div class="modal fade" id="editChildModal" tabindex="-1" role="dialog" aria-labelledby="editChildModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editChildModalLabel">Edit Child Information</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="editChildForm" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" id="editChildId" name="child_id">
 
-                $.ajax({
-                    type: 'POST',
-                    url: '',  // Current URL
-                    data: $(this).serialize(),  // Serialize form data
-                    success: function(response) {
-                        if (response.success) {
-                            alert('Child successfully added: ' + response.childName);
-                            $('#addChildForm')[0].reset(); // Reset the form
-                        } else {
-                            // Display form errors
-                            $('#errorMessages').html('');
-                            $.each(response.errors, function(field, messages) {
-                                $('#errorMessages').append('<div>' + field + ': ' + messages.join(', ') + '</div>');
-                            });
-                        }
+                            <div class="form-group">
+                                <label for="editFirstName">First Name</label>
+                                <input type="text" class="form-control" id="editFirstName" name="first_name" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="editLastName">Last Name</label>
+                                <input type="text" class="form-control" id="editLastName" name="last_name" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="editDob">Date of Birth</label>
+                                <input type="date" class="form-control" id="editDob" name="dob" value="{{ child.dob|date:'Y-m-d' }}" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="editGender">Gender</label>
+                                <select class="form-control" id="editGender" name="gender" required>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="editAge">Age</label>
+                                <input type="number" class="form-control" id="editAge" name="age" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="editAddress">Address</label>
+                                <input type="text" class="form-control" id="editAddress" name="address" required>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+
+        <script>
+            // Handle Add Child Form
+            document.getElementById("addChildForm").addEventListener("submit", function(event) {
+                event.preventDefault();
+
+                const formData = new FormData(this);
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                fetch("{% url 'add_child' %}", {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": csrfToken
                     },
-                    error: function(xhr, status, error) {
-                        console.error('AJAX error:', error);
+                    body: formData,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Append the new child to the list
+                        const childList = document.getElementById("childrenContainer");
+                        const newChild = document.createElement("li");
+                        newChild.id = `child_${data.child.id}`;
+                        newChild.innerHTML = `
+                            ${data.child.first_name} ${data.child.last_name} - Age: ${data.child.age}
+                            <button class="btn btn-warning btn-sm editChildBtn" data-id="${data.child.id}" data-first_name="${data.child.first_name}" data-last_name="${data.child.last_name}" data-age="${data.child.age}" data-dob="${data.child.dob}" data-gender="${data.child.gender}" data-address="${data.child.address}">Edit</button>
+                        `;
+                        childList.appendChild(newChild);
+                        document.getElementById("addChildForm").reset();
+                    } else {
+                        // Display errors
+                        const errorMessages = document.getElementById("errorMessages");
+                        errorMessages.innerHTML = data.errors.join("<br>");
                     }
-                });
+                })
+                .catch(error => console.error("Error:", error));
             });
-        });
-    </script>     
+
+            
+            // Handle Edit Child Button Click
+            $(document).on('click', '.editChildBtn', function() {
+                const childId = $(this).data('id');
+                const firstName = $(this).data('first_name');
+                const lastName = $(this).data('last_name');
+                const dob = $(this).data('dob');
+                const gender = $(this).data('gender');
+                const age = $(this).data('age');
+                const address = $(this).data('address');
+
+                // Set form action URL dynamically with the child ID
+                $('#editChildForm').attr('action', `/edit_child/${childId}/`);
+
+                // Set modal values
+                $('#editChildId').val(childId);
+                $('#editFirstName').val(firstName);
+                $('#editLastName').val(lastName);
+                $('#editDob').val(dob);
+                $('#editGender').val(gender);
+                $('#editAge').val(age);
+                $('#editAddress').val(address);
+
+                // Show the modal
+                $('#editChildModal').modal('show');
+            });
+
+
+
+            // Save Edited Child
+            $('#editChildForm').on('submit', function(event) {
+                event.preventDefault(); // Prevent the default form submission
+
+                const childId = $('#editChildId').val();  // Retrieve the child ID from the hidden input field
+                if (!childId) {
+                    console.error("Child ID is undefined.");
+                    return; // Stop execution if child ID is missing
+                }
+
+                const formData = {
+                    first_name: $('#editFirstName').val(),
+                    last_name: $('#editLastName').val(),
+                    dob: $('#editDob').val(),
+                    gender: $('#editGender').val(),
+                    age: $('#editAge').val(),
+                    address: $('#editAddress').val(),
+                };
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                fetch(`/edit_child/${childId}/`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": csrfToken,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(formData),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update the child info in the list
+                        const childItem = document.getElementById(`child_${childId}`);
+                        if (childItem) {
+                            childItem.innerHTML = `
+                                ${formData.first_name} ${formData.last_name} - Age: ${formData.age}
+                                <button class="btn btn-warning btn-sm editChildBtn" data-id="${childId}" data-first_name="${formData.first_name}" data-last_name="${formData.last_name}" data-age="${formData.age}" data-dob="${formData.dob}" data-gender="${formData.gender}" data-address="${formData.address}">Edit</button>
+                            `;
+                        }
+                        $('#editChildModal').modal('hide');
+                    } else {
+                        console.error("Failed to save changes.");
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            });
+        </script>
+    </div>
 </body>
 </html>

@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
 from django.conf import settings
+from datetime import date
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, username, phone_number=None, password=None):
@@ -47,6 +48,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 class Child(models.Model):
     name = models.CharField(max_length=100)
     parent = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    first_name = models.CharField(max_length=100, blank=True, null=True)
+    last_name = models.CharField(max_length=100, blank=True, null=True)
+    age = models.IntegerField(blank=True, null=True)
+    gender = models.CharField(max_length=10, choices=(('male', 'Male'), ('female', 'Female')))
+    address = models.TextField(blank=True, null=True)
+    dob = models.DateField(default=date.today, blank=True, null=True)
 
     def __str__(self):
         return self.name
